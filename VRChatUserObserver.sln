@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRChatUserObserver", "VRChatUserObserver\VRChatUserObserver.csproj", "{BE635C08-C2E7-4A8C-85DB-D24BDFCA3262}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raitichan.com.vrc-api", "raitichan.com.vrc-api\raitichan.com.vrc-api.csproj", "{DF6D5435-9D51-4F53-8978-DF769BBAC9E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raitichan.com.vrc-api.test", "raitichan.com.vrc-api.test\raitichan.com.vrc-api.test.csproj", "{9F40E43A-35FD-4D66-BD9E-B79B43BB6EC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRChatUserObserverCLI", "VRChatUserObserverCLI\VRChatUserObserverCLI.csproj", "{D650B806-2EBD-4868-A19B-0AC03A636EA8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE635C08-C2E7-4A8C-85DB-D24BDFCA3262}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE635C08-C2E7-4A8C-85DB-D24BDFCA3262}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE635C08-C2E7-4A8C-85DB-D24BDFCA3262}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE635C08-C2E7-4A8C-85DB-D24BDFCA3262}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF6D5435-9D51-4F53-8978-DF769BBAC9E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF6D5435-9D51-4F53-8978-DF769BBAC9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF6D5435-9D51-4F53-8978-DF769BBAC9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF6D5435-9D51-4F53-8978-DF769BBAC9E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F40E43A-35FD-4D66-BD9E-B79B43BB6EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F40E43A-35FD-4D66-BD9E-B79B43BB6EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F40E43A-35FD-4D66-BD9E-B79B43BB6EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F40E43A-35FD-4D66-BD9E-B79B43BB6EC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C705C8F-97F6-4505-981F-0612483FC5DA}
+	EndGlobalSection
+EndGlobal
