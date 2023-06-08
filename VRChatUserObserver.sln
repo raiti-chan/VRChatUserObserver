@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "raitichan.com.vrc-api.test"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRChatUserObserverCLI", "VRChatUserObserverCLI\VRChatUserObserverCLI.csproj", "{D650B806-2EBD-4868-A19B-0AC03A636EA8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B20DB8DF-5F2A-4BCC-947E-E1E4D0382B62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D650B806-2EBD-4868-A19B-0AC03A636EA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B20DB8DF-5F2A-4BCC-947E-E1E4D0382B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B20DB8DF-5F2A-4BCC-947E-E1E4D0382B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B20DB8DF-5F2A-4BCC-947E-E1E4D0382B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B20DB8DF-5F2A-4BCC-947E-E1E4D0382B62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
+using raitichan.com.vrchat_api.JsonObject;
 
 namespace raitichan.com.vrchat_api;
 
@@ -10,7 +11,7 @@ public sealed class UserAPI {
 		this._apiClient = apiClient;
 	}
 
-	public UserResult? GetUser(string userId) {
+	public UserInfo? GetUser(string userId) {
 		HttpResponseMessage responseMessage = this._apiClient.Get($"users/{userId}");
 		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
 		readAsStringAsync.Wait();
@@ -20,7 +21,7 @@ public sealed class UserAPI {
 		}
 
 		string jsonStr = readAsStringAsync.Result;
-		UserResult? userResult = JsonConvert.DeserializeObject<UserResult>(jsonStr);
+		UserInfo? userResult = JsonConvert.DeserializeObject<UserInfo>(jsonStr);
 		return userResult;
 	}
 }

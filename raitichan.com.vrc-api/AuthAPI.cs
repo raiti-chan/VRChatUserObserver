@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
+using raitichan.com.vrchat_api.JsonObject;
 
 namespace raitichan.com.vrchat_api;
 
@@ -12,7 +13,7 @@ public sealed class AuthAPI {
 		this._apiClient = apiClient;
 	}
 
-	public UserResult? GetUser(string userName, string password) {
+	public UserInfo? GetUser(string userName, string password) {
 		string authorization = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
 
 		HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "auth/user");
@@ -28,11 +29,11 @@ public sealed class AuthAPI {
 		}
 
 		string jsonStr = readAsStringAsync.Result;
-		UserResult? userResult = JsonConvert.DeserializeObject<UserResult>(jsonStr);
+		UserInfo? userResult = JsonConvert.DeserializeObject<UserInfo>(jsonStr);
 		return userResult;
 	}
 
-	public UserResult? GetUser() {
+	public UserInfo? GetUser() {
 		HttpResponseMessage responseMessage = this._apiClient.Get("auth/user");
 		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
 		readAsStringAsync.Wait();
@@ -42,11 +43,11 @@ public sealed class AuthAPI {
 		}
 
 		string jsonStr = readAsStringAsync.Result;
-		UserResult? userResult = JsonConvert.DeserializeObject<UserResult>(jsonStr);
+		UserInfo? userResult = JsonConvert.DeserializeObject<UserInfo>(jsonStr);
 		return userResult;
 	}
 
-	public VerifiedResult? PostTowFactorAuthEmailOTPVerify(string code) {
+	public VerifyResult? PostTowFactorAuthEmailOTPVerify(string code) {
 		VerifyContent verifyContent = new VerifyContent { code = code };
 		StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
 
@@ -59,40 +60,21 @@ public sealed class AuthAPI {
 		}
 
 		string jsonStr = readAsStringAsync.Result;
-		VerifiedResult? verifiedResult = JsonConvert.DeserializeObject<VerifiedResult>(jsonStr);
+		VerifyResult? verifiedResult = JsonConvert.DeserializeObject<VerifyResult>(jsonStr);
 		return verifiedResult;
 	}
-}
 
-[JsonObject]
-public sealed class VerifyContent {
-	[JsonProperty] public string? code;
-}
+	public AuthResult? GetAuth() {
+		HttpResponseMessage responseMessage = this._apiClient.Get("auth");
+		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
+		readAsStringAsync.Wait();
 
-[JsonObject]
-public sealed class UserResult {
-	[JsonProperty] public string? id;
-	[JsonProperty] public string? displayName;
-	[JsonProperty] public State? state;
+		if (responseMessage.StatusCode != HttpStatusCode.OK) {
+			return null;
+		}
 
-	[JsonProperty] public string? worldId;
-	[JsonProperty] public string? location;
-	[JsonProperty] public string? instanceId;
-	
-	[JsonProperty] public string? travelingToInstance;
-	[JsonProperty] public string? travelingToLocation;
-	[JsonProperty] public string? travelingToWorld;
-
-	[JsonProperty] public string[]? requiresTwoFactorAuth;
-}
-
-[JsonObject]
-public sealed class VerifiedResult {
-	[JsonProperty] public bool verified;
-}
-
-public enum State {
-	active,
-	online,
-	offline
+		string jsonStr = readAsStringAsync.Result;
+		AuthResult? authResult = JsonConvert.DeserializeObject<AuthResult>(jsonStr);
+		return authResult;
+	}
 }

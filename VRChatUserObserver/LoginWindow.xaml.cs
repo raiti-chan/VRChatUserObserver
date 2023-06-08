@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using raitichan.com.vrchat_api;
+using raitichan.com.vrchat_api.JsonObject;
 
 namespace VRChatUserObserver {
 	/// <summary>
@@ -12,7 +13,7 @@ namespace VRChatUserObserver {
 
 		private void OnLoginButton(object sender, RoutedEventArgs e) {
 			AuthAPI authApi = new(App.INSTANCE.ApiClient);
-			UserResult? result = authApi.GetUser(this.id.Text, this.password.Text);
+			UserInfo? result = authApi.GetUser(this.id.Text, this.password.Text);
 			if (result == null) return;
 			
 			EmailOTPDialog emailOtpDialog = new EmailOTPDialog();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using raitichan.com.vrchat_api;
+using raitichan.com.vrchat_api.JsonObject;
 
 namespace VRChatUserObserver; 
 
@@ -11,7 +12,7 @@ public partial class EmailOTPDialog : Window {
 
 	private void OnEnterButton(object sender, RoutedEventArgs e) {
 		AuthAPI authApi = new(App.INSTANCE.ApiClient);
-		VerifiedResult? result = authApi.PostTowFactorAuthEmailOTPVerify(this.code.Text);
+		VerifyResult? result = authApi.PostTowFactorAuthEmailOTPVerify(this.code.Text);
 		if (result != null) {
 			this.DialogResult = result.verified;
 		}
