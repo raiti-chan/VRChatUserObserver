@@ -85,8 +85,6 @@ const string CONFIGURATION_PATH = "./configuration.json";
 	Console.WriteLine("Start Observer.");
 
 	State currentState = target.state;
-	// string currentWorldId = target.worldId ?? "";
-	//string currentInstance = target.instanceId ?? "";
 	string currentLocation = target.location ?? "";
 
 	if (target.id == null) return;
