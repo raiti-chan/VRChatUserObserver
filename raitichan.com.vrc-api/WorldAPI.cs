@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Newtonsoft.Json;
+using raitichan.com.vrchat_api.JsonObject;
 
 namespace raitichan.com.vrchat_api;
 
@@ -10,7 +11,7 @@ public class WorldAPI {
 		this._apiClient = apiClient;
 	}
 
-	public WorldResult? GetWorld(string worldId) {
+	public WorldInfo? GetWorld(string worldId) {
 		HttpResponseMessage responseMessage = this._apiClient.Get($"worlds/{worldId}");
 		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
 		readAsStringAsync.Wait();
@@ -20,12 +21,7 @@ public class WorldAPI {
 		}
 
 		string jsonStr = readAsStringAsync.Result;
-		WorldResult? worldResult = JsonConvert.DeserializeObject<WorldResult>(jsonStr);
+		WorldInfo? worldResult = JsonConvert.DeserializeObject<WorldInfo>(jsonStr);
 		return worldResult;
 	}
-}
-
-[JsonObject]
-public sealed class WorldResult {
-	[JsonProperty] public string? name;
 }

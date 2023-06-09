@@ -43,9 +43,9 @@ const string CONFIGURATION_PATH = "./configuration.json";
 				}
 			}
 
-			Configuration newConfiguration = vrchatApi.GetConfiguration();
-			string newConfigurationStr = JsonConvert.SerializeObject(newConfiguration);
-			File.WriteAllText(CONFIGURATION_PATH, newConfigurationStr, Encoding.UTF8);
+			configuration = vrchatApi.GetConfiguration();
+			string configurationStr = JsonConvert.SerializeObject(configuration);
+			File.WriteAllText(CONFIGURATION_PATH, configurationStr, Encoding.UTF8);
 		}
 
 		UserInfo? loginUserInfo = vrchatApi.AuthAPI.GetUser();
@@ -53,8 +53,10 @@ const string CONFIGURATION_PATH = "./configuration.json";
 			Console.Error.WriteLine("Login failed.");
 			return;
 		}
+
 		Console.WriteLine($"You are logged in : {loginUserInfo.displayName}");
 	}
+	if (configuration?.auth == null) return;
 
 	UserInfo target;
 	while (true) {
@@ -80,100 +82,79 @@ const string CONFIGURATION_PATH = "./configuration.json";
 	Console.WriteLine($"State: {target.state}");
 	Console.WriteLine($"Location: {target.location}");
 	Console.WriteLine($"TravelingTo: {target.travelingToWorld}");
-	Console.WriteLine($"Start Observer.");
+	Console.WriteLine("Start Observer.");
+
+	State currentState = target.state;
+	// string currentWorldId = target.worldId ?? "";
+	//string currentInstance = target.instanceId ?? "";
+	string currentLocation = target.location ?? "";
 
 	if (target.id == null) return;
 
-	
-	XSNotifier xsNotifier = new XSNotifier();
-	string? currentWorldId = target.location;
+	XSNotifier xsNotifier = new();
+
+	WebSocketAPI webSocketApi = vrchatApi.WebSocketApi;
+	webSocketApi.Connection(configuration.auth);
 
 	while (true) {
-		Thread.Sleep(60000);
-		Console.WriteLine("Update State");
-		UserInfo? updateResult = vrchatApi.UserApi.GetUser(target.id);
-		if (updateResult == null) {
-			Console.Error.WriteLine("Unknown Error");
-			continue;
-		}
+		WebSocketReceiveData? receiveData = webSocketApi.ReceiveMassage();
+		if (receiveData?.content == null) continue;
+		switch (receiveData.type) {
+			case "friend-online": {
+				if (currentState != State.online) {
+					FriendOnline? friendOnline = JsonConvert.DeserializeObject<FriendOnline>(receiveData.content);
+					if (friendOnline?.userId != target.id) break;
+					currentState = State.online;
+					currentLocation = friendOnline.location ?? "private";
 
-		if (currentWorldId != updateResult.worldId) {
-			switch (updateResult.worldId) {
-				case "offline": {
+					string title = $"{target.displayName} is Online!";
+					string content = friendOnline.world?.name ?? "Private";
+
+					Notification(xsNotifier, title, content);
+				}
+
+				break;
+			}
+			case "friend-active": {
+				if (currentState == State.online) {
+					FriendActive? friendActive = JsonConvert.DeserializeObject<FriendActive>(receiveData.content);
+					if (friendActive?.userId != target.id) break;
+					currentState = State.active;
+
 					string title = $"{target.displayName} is Offline!";
 
-					Console.WriteLine(title);
-
-					new ToastContentBuilder()
-						.AddText(title)
-						.Show();
-
-					xsNotifier.SendNotification(new XSNotification() {
-						Title = title
-					});
-					break;
+					Notification(xsNotifier, title);
 				}
-				case "private": {
-					string title = $"{target.displayName} in Private World!";
 
-					Console.WriteLine(title);
-
-					new ToastContentBuilder()
-						.AddText(title)
-						.Show();
-
-					xsNotifier.SendNotification(new XSNotification() {
-						Title = title
-					});
-					break;
-				}
-				case "traveling": {
-					string title = $"{target.displayName} is Traveling World!";
-					string worldName = "Unknown";
-					if (updateResult.travelingToWorld != null) {
-						var worldResult = vrchatApi.WorldApi.GetWorld(updateResult.travelingToWorld);
-						worldName = worldResult?.name ?? updateResult.travelingToWorld;
-					}
-
-					string content = $"To: {worldName}";
-
-					Console.WriteLine(title);
-					Console.WriteLine(content);
-
-					new ToastContentBuilder()
-						.AddText(title)
-						.AddText(content)
-						.Show();
-
-					xsNotifier.SendNotification(new XSNotification() {
-						Title = title,
-						Content = content
-					});
-					break;
-				}
-				default: {
-					string worldName = "Unknown";
-					if (updateResult.worldId != null) {
-						var worldResult = vrchatApi.WorldApi.GetWorld(updateResult.worldId);
-						worldName = worldResult?.name ?? updateResult.worldId;
-					}
-
-					string title = $"{target.displayName} in {worldName}";
-
-					Console.WriteLine(title);
-
-					new ToastContentBuilder()
-						.AddText(title)
-						.Show();
-
-					xsNotifier.SendNotification(new XSNotification() {
-						Title = title
-					});
-					break;
-				}
+				break;
 			}
+			case "friend-offline": {
+				if (currentState == State.online) {
+					FriendOffline? friendOffline = JsonConvert.DeserializeObject<FriendOffline>(receiveData.content);
+					if (friendOffline?.userId != target.id) break;
+					currentState = State.offline;
 
-			currentWorldId = updateResult.worldId;
+					string title = $"{target.displayName} is Offline!";
+
+					Notification(xsNotifier, title);
+				}
+
+				break;
+			}
+			case "friend-location": {
+				FriendLocation? friendLocation = JsonConvert.DeserializeObject<FriendLocation>(receiveData.content);
+				if (friendLocation?.userId != target.id) break;
+				if (currentLocation != friendLocation.location) {
+					currentLocation = friendLocation.location ?? "private";
+
+					string title = $"{target.displayName} Traveled!";
+					string content = friendLocation.world?.name ?? "Private";
+
+					Notification(xsNotifier, title, content);
+				}
+
+				break;
+			}
 		}
 	}
 }
@@ -188,4 +169,16 @@ Configuration? LoadConfig() {
 	string configurationJson = File.ReadAllText(CONFIGURATION_PATH, Encoding.UTF8);
 	Configuration? configuration = JsonConvert.DeserializeObject<Configuration>(configurationJson);
 	return configuration;
+}
+
+void Notification(XSNotifier xsNotifier, string title, string? content = null) {
+	if (content != null) {
+		Console.WriteLine($"{title} : {content}");
+		new ToastContentBuilder().AddText(title).AddText(content).Show();
+		xsNotifier.SendNotification(new XSNotification { Title = title, Content = content });
+	} else {
+		Console.WriteLine(title);
+		new ToastContentBuilder().AddText(title).Show();
+		xsNotifier.SendNotification(new XSNotification { Title = title });
+	}
 }

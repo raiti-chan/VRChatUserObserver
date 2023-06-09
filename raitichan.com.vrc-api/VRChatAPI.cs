@@ -5,14 +5,18 @@ namespace raitichan.com.vrchat_api;
 
 public class VRChatAPI {
 	public const string API_BASE = "https://api.vrchat.cloud/api/1/";
-	public static readonly Uri API_BASE_URI = new Uri(API_BASE);
+	public const string WEB_SOCKET_API = "wss://vrchat.com/";
 
-	private APIClient _apiClient;
+	private static readonly Uri API_BASE_URI = new(API_BASE);
+
+	private readonly APIClient _apiClient;
+	private WebSocketAPI? _webSocketApi;
 
 	public SystemAPI SystemApi { get; }
 	public AuthAPI AuthAPI { get; }
 	public UserAPI UserApi { get; }
 	public WorldAPI WorldApi { get; }
+	public WebSocketAPI WebSocketApi => this._webSocketApi ??= new WebSocketAPI();
 
 	public VRChatAPI() {
 		this._apiClient = new APIClient(API_BASE_URI);
