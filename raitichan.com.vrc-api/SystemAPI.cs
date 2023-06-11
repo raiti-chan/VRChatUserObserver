@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Net;
+using Newtonsoft.Json;
 
-namespace raitichan.com.vrchat_api; 
+namespace raitichan.com.vrchat_api;
 
 public sealed class SystemAPI {
-
 	private readonly APIClient _apiClient;
 
 	public SystemAPI(APIClient apiClient) {
@@ -12,17 +12,19 @@ public sealed class SystemAPI {
 
 	public ConfigResult? GetConfig() {
 		HttpResponseMessage responseMessage = this._apiClient.Get("config");
+		if (responseMessage.StatusCode != HttpStatusCode.OK) {
+			return null;
+		}
+
 		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
 		readAsStringAsync.Wait();
 		string jsonStr = readAsStringAsync.Result;
 		ConfigResult? config = JsonConvert.DeserializeObject<ConfigResult>(jsonStr);
 		return config;
 	}
-	
 }
 
 [JsonObject]
 public sealed class ConfigResult {
-	[JsonProperty]
-	public string? clientApiKey;
+	[JsonProperty] public string? clientApiKey;
 }

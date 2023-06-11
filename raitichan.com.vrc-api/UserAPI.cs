@@ -13,12 +13,12 @@ public sealed class UserAPI {
 
 	public UserInfo? GetUser(string userId) {
 		HttpResponseMessage responseMessage = this._apiClient.Get($"users/{userId}");
-		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
-		readAsStringAsync.Wait();
-
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
+
+		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
+		readAsStringAsync.Wait();
 
 		string jsonStr = readAsStringAsync.Result;
 		UserInfo? userResult = JsonConvert.DeserializeObject<UserInfo>(jsonStr);

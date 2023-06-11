@@ -30,7 +30,7 @@ try {
 			if (authResult is not { ok: true }) {
 				Console.Write("Code: ");
 				string code = Console.ReadLine() ?? "";
-				VerifyResult? verifiedResult = vrchatApi.AuthAPI.PostTowFactorAuthEmailOTPVerify(code);
+				VerifyResult? verifiedResult = vrchatApi.AuthAPI.PostTwoFactorAuthEmailOTPVerify(code);
 				if (verifiedResult is not { verified: true }) {
 					Console.Error.WriteLine("Login failed.");
 					return;

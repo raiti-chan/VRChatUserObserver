@@ -13,12 +13,13 @@ public class WorldAPI {
 
 	public WorldInfo? GetWorld(string worldId) {
 		HttpResponseMessage responseMessage = this._apiClient.Get($"worlds/{worldId}");
-		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
-		readAsStringAsync.Wait();
-
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
+
+		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
+		readAsStringAsync.Wait();
+
 
 		string jsonStr = readAsStringAsync.Result;
 		WorldInfo? worldResult = JsonConvert.DeserializeObject<WorldInfo>(jsonStr);

@@ -12,7 +12,7 @@ public partial class EmailOTPDialog : Window {
 
 	private void OnEnterButton(object sender, RoutedEventArgs e) {
 		AuthAPI authApi = new(App.INSTANCE.ApiClient);
-		VerifyResult? result = authApi.PostTowFactorAuthEmailOTPVerify(this.code.Text);
+		VerifyResult? result = authApi.PostTwoFactorAuthEmailOTPVerify(this.code.Text);
 		if (result != null) {
 			this.DialogResult = result.verified;
 		}
