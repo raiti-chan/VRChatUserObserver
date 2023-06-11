@@ -6,7 +6,7 @@ using raitichan.com.vrchat_api.JsonObject;
 using XSNotifications;
 
 const string CONFIGURATION_PATH = "./configuration.json";
-{
+try {
 	/* main */
 	Configuration? configuration = LoadConfig();
 	VRChatAPI vrchatApi = configuration is null ? new VRChatAPI() : new VRChatAPI(configuration);
@@ -91,70 +91,78 @@ const string CONFIGURATION_PATH = "./configuration.json";
 
 	XSNotifier xsNotifier = new();
 
-	WebSocketAPI webSocketApi = vrchatApi.WebSocketApi;
-	webSocketApi.Connection(configuration.auth);
-
 	while (true) {
-		WebSocketReceiveData? receiveData = webSocketApi.ReceiveMassage();
-		if (receiveData?.content == null) continue;
-		switch (receiveData.type) {
-			case "friend-online": {
-				if (currentState != State.online) {
-					FriendOnline? friendOnline = JsonConvert.DeserializeObject<FriendOnline>(receiveData.content);
-					if (friendOnline?.userId != target.id) break;
-					currentState = State.online;
-					currentLocation = friendOnline.location ?? "private";
+		try {
+			using WebSocketAPI webSocketApi = vrchatApi.CreateWebSocketApi();
+			webSocketApi.Connection(configuration.auth);
+			while (true) {
+				WebSocketReceiveData? receiveData = webSocketApi.ReceiveMassage();
+				if (receiveData?.content == null) continue;
+				switch (receiveData.type) {
+					case "friend-online": {
+						if (currentState != State.online) {
+							FriendOnline? friendOnline = JsonConvert.DeserializeObject<FriendOnline>(receiveData.content);
+							if (friendOnline?.userId != target.id) break;
+							currentState = State.online;
+							currentLocation = friendOnline.location ?? "private";
 
-					string title = $"{target.displayName} is Online!";
-					string content = friendOnline.world?.name ?? "Private";
+							string title = $"{target.displayName} is Online!";
+							string content = friendOnline.world?.name ?? "Private";
 
-					Notification(xsNotifier, title, content);
+							Notification(xsNotifier, title, content);
+						}
+
+						break;
+					}
+					case "friend-active": {
+						if (currentState == State.online) {
+							FriendActive? friendActive = JsonConvert.DeserializeObject<FriendActive>(receiveData.content);
+							if (friendActive?.userId != target.id) break;
+							currentState = State.active;
+
+							string title = $"{target.displayName} is Offline!";
+
+							Notification(xsNotifier, title);
+						}
+
+						break;
+					}
+					case "friend-offline": {
+						if (currentState == State.online) {
+							FriendOffline? friendOffline = JsonConvert.DeserializeObject<FriendOffline>(receiveData.content);
+							if (friendOffline?.userId != target.id) break;
+							currentState = State.offline;
+
+							string title = $"{target.displayName} is Offline!";
+
+							Notification(xsNotifier, title);
+						}
+
+						break;
+					}
+					case "friend-location": {
+						FriendLocation? friendLocation = JsonConvert.DeserializeObject<FriendLocation>(receiveData.content);
+						if (friendLocation?.userId != target.id) break;
+						if (currentLocation != friendLocation.location) {
+							currentLocation = friendLocation.location ?? "private";
+
+							string title = $"{target.displayName} Traveled!";
+							string content = friendLocation.world?.name ?? "Private";
+
+							Notification(xsNotifier, title, content);
+						}
+
+						break;
+					}
 				}
-
-				break;
 			}
-			case "friend-active": {
-				if (currentState == State.online) {
-					FriendActive? friendActive = JsonConvert.DeserializeObject<FriendActive>(receiveData.content);
-					if (friendActive?.userId != target.id) break;
-					currentState = State.active;
-
-					string title = $"{target.displayName} is Offline!";
-
-					Notification(xsNotifier, title);
-				}
-
-				break;
-			}
-			case "friend-offline": {
-				if (currentState == State.online) {
-					FriendOffline? friendOffline = JsonConvert.DeserializeObject<FriendOffline>(receiveData.content);
-					if (friendOffline?.userId != target.id) break;
-					currentState = State.offline;
-
-					string title = $"{target.displayName} is Offline!";
-
-					Notification(xsNotifier, title);
-				}
-
-				break;
-			}
-			case "friend-location": {
-				FriendLocation? friendLocation = JsonConvert.DeserializeObject<FriendLocation>(receiveData.content);
-				if (friendLocation?.userId != target.id) break;
-				if (currentLocation != friendLocation.location) {
-					currentLocation = friendLocation.location ?? "private";
-
-					string title = $"{target.displayName} Traveled!";
-					string content = friendLocation.world?.name ?? "Private";
-
-					Notification(xsNotifier, title, content);
-				}
-
-				break;
-			}
+		} catch (Exception e) {
+			Console.WriteLine(e.ToString());
 		}
 	}
+} catch (Exception e) {
+	Console.WriteLine(e.ToString());
+	File.WriteAllText("./CrashReport.txt", e.ToString());
 }
 
 

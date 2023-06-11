@@ -10,13 +10,12 @@ public class VRChatAPI {
 	private static readonly Uri API_BASE_URI = new(API_BASE);
 
 	private readonly APIClient _apiClient;
-	private WebSocketAPI? _webSocketApi;
 
 	public SystemAPI SystemApi { get; }
 	public AuthAPI AuthAPI { get; }
 	public UserAPI UserApi { get; }
 	public WorldAPI WorldApi { get; }
-	public WebSocketAPI WebSocketApi => this._webSocketApi ??= new WebSocketAPI();
+
 
 	public VRChatAPI() {
 		this._apiClient = new APIClient(API_BASE_URI);
@@ -49,5 +48,9 @@ public class VRChatAPI {
 		}
 
 		return configuration;
+	}
+	
+	public WebSocketAPI CreateWebSocketApi() {
+		return new WebSocketAPI();
 	}
 }
