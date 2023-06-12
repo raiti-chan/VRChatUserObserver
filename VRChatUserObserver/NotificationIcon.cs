@@ -23,7 +23,7 @@ public sealed class NotificationIcon : IDisposable {
 	}
 
 	public void ShowNotification(string title, string? content) {
-		this._notifyIcon.ShowBalloonTip(30, title, content ?? "", ToolTipIcon.Info);
+		this._notifyIcon.ShowBalloonTip(30, title, content ?? title, ToolTipIcon.Info);
 	}
 	
 	private static void OnShowWindow(object? sender, EventArgs e) {
