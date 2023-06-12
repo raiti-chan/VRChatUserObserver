@@ -3,7 +3,7 @@ using raitichan.com.vrchat_api.JsonObject;
 
 namespace raitichan.com.vrchat_api;
 
-public class VRChatAPI {
+public sealed class VRChatAPI : IDisposable {
 	public const string API_BASE = "https://api.vrchat.cloud/api/1/";
 	public const string WEB_SOCKET_API = "wss://vrchat.com/";
 
@@ -26,6 +26,10 @@ public class VRChatAPI {
 	}
 
 	public VRChatAPI(Configuration configuration) : this() {
+		this.SetConfiguration(configuration);
+	}
+
+	private void SetConfiguration(Configuration configuration) {
 		CookieContainer container = this._apiClient.CookieContainer;
 		container.Add(API_BASE_URI, new Cookie(nameof(Configuration.auth), configuration.auth ?? "") { Path = "/" });
 		container.Add(API_BASE_URI, new Cookie(nameof(Configuration.twoFactorAuth), configuration.twoFactorAuth ?? "") { Path = "/" });
@@ -52,5 +56,9 @@ public class VRChatAPI {
 	
 	public WebSocketAPI CreateWebSocketApi() {
 		return new WebSocketAPI();
+	}
+
+	public void Dispose() {
+		this._apiClient.Dispose();
 	}
 }

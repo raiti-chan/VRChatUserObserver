@@ -12,7 +12,7 @@ public sealed class UserAPI {
 	}
 
 	public UserInfo? GetUser(string userId) {
-		HttpResponseMessage responseMessage = this._apiClient.Get($"users/{userId}");
+		using HttpResponseMessage responseMessage = this._apiClient.Get($"users/{userId}");
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}

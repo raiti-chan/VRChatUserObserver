@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text;
 
 namespace raitichan.com.vrchat_api;
 
@@ -39,9 +40,17 @@ public sealed class APIClient : IDisposable {
 		return postAsyncTask.Result;
 	}
 
+	public HttpResponseMessage Put(string endPoint) {
+		StringContent stringContent = new StringContent("application/json", Encoding.UTF8);
+		Task<HttpResponseMessage> putAsyncTask = this._client.PutAsync(endPoint, stringContent);
+		putAsyncTask.Wait();
+		return putAsyncTask.Result;
+	}
+	
 	public HttpResponseMessage Send(HttpRequestMessage requestMessage) {
 		return this._client.Send(requestMessage);
 	}
+	
 
 	public void Dispose() {
 		this._client.Dispose();

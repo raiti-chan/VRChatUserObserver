@@ -12,7 +12,7 @@ public class WorldAPI {
 	}
 
 	public WorldInfo? GetWorld(string worldId) {
-		HttpResponseMessage responseMessage = this._apiClient.Get($"worlds/{worldId}");
+		using HttpResponseMessage responseMessage = this._apiClient.Get($"worlds/{worldId}");
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}

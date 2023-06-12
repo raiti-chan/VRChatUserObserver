@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using raitichan.com.vrchat_api.JsonObject;
@@ -16,10 +15,10 @@ public sealed class AuthAPI {
 	public UserInfo? GetUser(string userName, string password) {
 		string authorization = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
 
-		HttpRequestMessage requestMessage = new(HttpMethod.Get, "auth/user");
+		using HttpRequestMessage requestMessage = new(HttpMethod.Get, "auth/user");
 		requestMessage.Headers.Add("Authorization", $"Basic {authorization}");
 
-		HttpResponseMessage responseMessage = this._apiClient.Send(requestMessage);
+		using HttpResponseMessage responseMessage = this._apiClient.Send(requestMessage);
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
@@ -33,7 +32,7 @@ public sealed class AuthAPI {
 	}
 
 	public UserInfo? GetUser() {
-		HttpResponseMessage responseMessage = this._apiClient.Get("auth/user");
+		using HttpResponseMessage responseMessage = this._apiClient.Get("auth/user");
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
@@ -48,14 +47,14 @@ public sealed class AuthAPI {
 
 	public VerifyResult? PostTwoFactorAuthEmailOTPVerify(string code) {
 		VerifyContent verifyContent = new() { code = code };
-		StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
+		using StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
 
-		HttpResponseMessage responseMessage = this._apiClient.Post("auth/twofactorauth/emailotp/verify", content);
-		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
+		using HttpResponseMessage responseMessage = this._apiClient.Post("auth/twofactorauth/emailotp/verify", content);
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
-
+		
+		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
 		readAsStringAsync.Wait();
 
 		string jsonStr = readAsStringAsync.Result;
@@ -65,9 +64,9 @@ public sealed class AuthAPI {
 
 	public VerifyResult? PostTwoFactorAuthTOTPVerify(string code) {
 		VerifyContent verifyContent = new() { code = code };
-		StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
+		using StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
 
-		HttpResponseMessage responseMessage = this._apiClient.Post("auth/twofactorauth/totp/verify", content);
+		using HttpResponseMessage responseMessage = this._apiClient.Post("auth/twofactorauth/totp/verify", content);
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
@@ -83,14 +82,14 @@ public sealed class AuthAPI {
 	public VerifyResult? PostTwoFactorAuthTOTPVerify(string userName, string password,string code) {
 		string authorization = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userName}:{password}"));
 		VerifyContent verifyContent = new() { code = code };
-		StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
+		using StringContent content = new(JsonConvert.SerializeObject(verifyContent), Encoding.UTF8, "application/json");
 
-		HttpRequestMessage requestMessage = new(HttpMethod.Get, "auth/twofactorauth/totp/verify") {
+		using HttpRequestMessage requestMessage = new(HttpMethod.Get, "auth/twofactorauth/totp/verify") {
 			Content = content
 		};
 		requestMessage.Headers.Add("Authorization", $"Basic {authorization}");
 		
-		HttpResponseMessage responseMessage = this._apiClient.Send(requestMessage);
+		using HttpResponseMessage responseMessage = this._apiClient.Send(requestMessage);
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
@@ -104,16 +103,20 @@ public sealed class AuthAPI {
 	}
 
 	public AuthResult? GetAuth() {
-		HttpResponseMessage responseMessage = this._apiClient.Get("auth");
-		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
-		readAsStringAsync.Wait();
-
+		using HttpResponseMessage responseMessage = this._apiClient.Get("auth");
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
-
+		
+		Task<string> readAsStringAsync = responseMessage.Content.ReadAsStringAsync();
+		readAsStringAsync.Wait();
+		
 		string jsonStr = readAsStringAsync.Result;
 		AuthResult? authResult = JsonConvert.DeserializeObject<AuthResult>(jsonStr);
 		return authResult;
+	}
+
+	public void PutLogout() {
+		this._apiClient.Put("logout");
 	}
 }

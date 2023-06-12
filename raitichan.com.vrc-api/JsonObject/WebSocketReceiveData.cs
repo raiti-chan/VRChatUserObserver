@@ -36,5 +36,6 @@ public class FriendLocation {
 	[JsonProperty] public string? location;
 	[JsonProperty] public string? instance;
 	[JsonProperty] public WorldInfo? world;
+	[JsonProperty] public string? travelingToLocation;
 	[JsonProperty] public bool canRequestInvite;
 }

@@ -5,10 +5,10 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="VRChat.API" Version="1.12.0" />
     <PackageReference Include="XSNotifications" Version="0.1.2" />
   </ItemGroup>
 

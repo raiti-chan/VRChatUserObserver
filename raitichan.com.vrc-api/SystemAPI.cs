@@ -11,7 +11,7 @@ public sealed class SystemAPI {
 	}
 
 	public ConfigResult? GetConfig() {
-		HttpResponseMessage responseMessage = this._apiClient.Get("config");
+		using HttpResponseMessage responseMessage = this._apiClient.Get("config");
 		if (responseMessage.StatusCode != HttpStatusCode.OK) {
 			return null;
 		}
