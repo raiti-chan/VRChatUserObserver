@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Windows.Input;
+using NLog;
 using VRChatUserObserver.Windows;
 
 namespace VRChatUserObserver.Commands; 
 
 public class StopCommand : ICommand {
+	private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
 	private readonly MainWindowViewModel _viewModel;
 
 	public StopCommand(MainWindowViewModel viewModel) {
@@ -16,6 +18,7 @@ public class StopCommand : ICommand {
 	}
 
 	public void Execute(object? parameter) {
+		LOGGER.Info("Stop");
 		this._viewModel.IsRunning = false;
 	}
 

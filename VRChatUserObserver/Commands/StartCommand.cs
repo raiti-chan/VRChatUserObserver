@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Newtonsoft.Json;
+using NLog;
 using raitichan.com.vrchat_api;
 using raitichan.com.vrchat_api.JsonObject;
 using VRChatUserObserver.Windows;
@@ -11,6 +12,7 @@ using XSNotifications;
 namespace VRChatUserObserver.Commands;
 
 public class StartCommand : ICommand {
+	private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
 	private readonly MainWindowViewModel _viewModel;
 
 	public StartCommand(MainWindowViewModel viewModel) {
@@ -22,18 +24,25 @@ public class StartCommand : ICommand {
 	}
 
 	public void Execute(object? parameter) {
+		LOGGER.Info("Start : {}", this._viewModel.ObservingTargetId);
 		if (string.IsNullOrEmpty(this._viewModel.ObservingTargetId)) {
+			LOGGER.Info("Target not set.");
 			return;
 		}
 
+		LOGGER.Info("Check Auth.");
 		AuthResult? authResult = App.INSTANCE.VRChatApi.AuthAPI.GetAuth();
 		if (authResult is not { ok: true }) {
+			LOGGER.Warn("Failure.");
 			return;
 		}
+
+		LOGGER.Info("Success.");
 
 		UserAPI userApi = App.INSTANCE.VRChatApi.UserApi;
 		UserInfo? userInfo = userApi.GetUser(this._viewModel.ObservingTargetId);
 		if (userInfo == null) {
+			LOGGER.Warn("User information could not be retrieved.");
 			return;
 		}
 
@@ -45,6 +54,7 @@ public class StartCommand : ICommand {
 	}
 
 	private void Run(object? param) {
+		LOGGER.Info("Start Observing thread");
 		if (param is not (string token, State currentState, string currentLocation)) {
 			this._viewModel.IsRunning = false;
 			return;
@@ -52,22 +62,35 @@ public class StartCommand : ICommand {
 
 		while (this._viewModel.IsRunning) {
 			try {
+				LOGGER.Info("Check Auth.");
 				if (App.INSTANCE.VRChatApi.AuthAPI.GetAuth() is not { ok: true }) {
+					LOGGER.Warn("Failure.");
+					LOGGER.Warn("Stopping Ovserving thread.");
 					this._viewModel.IsRunning = false;
-					return;
+					continue;
 				}
 
+				LOGGER.Info("Connect to Websocket.");
 				using WebSocketAPI webSocketApi = App.INSTANCE.VRChatApi.CreateWebSocketApi();
-				using XSNotifier xsNotifier = new();
 				webSocketApi.Connection(token);
+
+				LOGGER.Info("Create XSNotifier.");
+				using XSNotifier xsNotifier = new();
+
+				LOGGER.Info("Start observing loop.");
 				while (this._viewModel.IsRunning) {
 					WebSocketReceiveData? receiveData = webSocketApi.ReceiveMassage();
 					if (receiveData?.content == null) continue;
+
 					switch (receiveData.type) {
 						case "friend-online": {
 							if (currentState != State.online) {
 								FriendOnline? friendOnline = JsonConvert.DeserializeObject<FriendOnline>(receiveData.content);
 								if (friendOnline?.userId != this._viewModel.ObservingTargetId) break;
+								
+								LOGGER.Info("{} to Online", this._viewModel.ObservingTargetName);
+								LOGGER.Info(JsonConvert.SerializeObject(friendOnline));
+								
 								currentState = State.online;
 								currentLocation = friendOnline.location ?? "private";
 								this._viewModel.CurrentState = "online";
@@ -85,6 +108,11 @@ public class StartCommand : ICommand {
 							if (currentState == State.online) {
 								FriendActive? friendActive = JsonConvert.DeserializeObject<FriendActive>(receiveData.content);
 								if (friendActive?.userId != this._viewModel.ObservingTargetId) break;
+								
+								LOGGER.Info("{} to Active", this._viewModel.ObservingTargetName);
+								LOGGER.Info(JsonConvert.SerializeObject(friendActive));
+
+								
 								currentState = State.active;
 								currentLocation = "offline";
 								this._viewModel.CurrentState = "offline";
@@ -101,6 +129,10 @@ public class StartCommand : ICommand {
 							if (currentState == State.online) {
 								FriendOffline? friendOffline = JsonConvert.DeserializeObject<FriendOffline>(receiveData.content);
 								if (friendOffline?.userId != this._viewModel.ObservingTargetId) break;
+								
+								LOGGER.Info("{} to Offline", this._viewModel.ObservingTargetName);
+								LOGGER.Info(JsonConvert.SerializeObject(friendOffline));
+								
 								currentState = State.offline;
 								currentLocation = "offline";
 								this._viewModel.CurrentState = "offline";
@@ -119,6 +151,9 @@ public class StartCommand : ICommand {
 							if (friendLocation.location == "traveling") {
 								string location = friendLocation.travelingToLocation ?? "private";
 								if (currentLocation != location) {
+									LOGGER.Info("{} Location", this._viewModel.ObservingTargetName);
+									LOGGER.Info(JsonConvert.SerializeObject(friendLocation));
+									
 									currentLocation = location;
 									string worldId = new Instance(location).WorldId;
 									this._viewModel.CurrentLocation = App.INSTANCE.VRChatApi.WorldApi.GetWorld(worldId)?.name ?? "private";
@@ -131,6 +166,9 @@ public class StartCommand : ICommand {
 							} else {
 								string location = friendLocation.location ?? "private";
 								if (currentLocation != location) {
+									LOGGER.Info("{} Location", this._viewModel.ObservingTargetName);
+									LOGGER.Info(JsonConvert.SerializeObject(friendLocation));
+									
 									currentLocation = location;
 									this._viewModel.CurrentLocation = friendLocation.world?.name ?? "private";
 
@@ -145,19 +183,25 @@ public class StartCommand : ICommand {
 						}
 					}
 				}
+
+				LOGGER.Info("Stop observing loop.");
 			} catch (Exception e) {
+				LOGGER.Error(e);
 				File.WriteAllText("./CrashReport.txt", e.ToString());
+				LOGGER.Info("Reconnect.");
 			}
 		}
+
+		LOGGER.Info("Stop Observing thread");
 	}
 
 	private static void Notification(XSNotifier xsNotifier, string title, string? content = null) {
 		if (content != null) {
-			Console.WriteLine($"{title} : {content}");
+			LOGGER.Info("{} : {}", title, content);
 			App.INSTANCE.SendNotification(title, content);
 			xsNotifier.SendNotification(new XSNotification { Title = title, Content = content });
 		} else {
-			Console.WriteLine(title);
+			LOGGER.Info(title);
 			App.INSTANCE.SendNotification(title);
 			xsNotifier.SendNotification(new XSNotification { Title = title });
 		}

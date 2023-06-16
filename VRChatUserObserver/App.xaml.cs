@@ -2,10 +2,10 @@
 using System.Text;
 using System.Windows;
 using Newtonsoft.Json;
+using NLog;
 using raitichan.com.vrchat_api;
 using raitichan.com.vrchat_api.JsonObject;
 using VRChatUserObserver.Windows;
-using XSNotifications;
 
 namespace VRChatUserObserver {
 	/// <summary>
@@ -13,29 +13,33 @@ namespace VRChatUserObserver {
 	/// </summary>
 	public partial class App {
 		private const string CONFIGURATION_PATH = "./configuration.json";
+		private static readonly Logger LOGGER = LogManager.GetCurrentClassLogger();
 		public static App INSTANCE { get; private set; } = null!;
 
 		public VRChatAPI VRChatApi { get; private set; } = null!;
-		private XSNotifier XsNotifier { get; set; } = null!;
 		private NotificationIcon NotificationIcon { get; set; } = null!;
 
 		private MainWindowModel _mainWindowModel = null!;
 		private MainWindowViewModel _mainWindowViewModel = null!;
 
 		public void ShowMainWindow() {
+			LOGGER.Info("Show Window");
 			this.MainWindow ??= new MainWindow(this._mainWindowViewModel);
 			this.MainWindow.Show();
 		}
 
 		public void SendNotification(string title, string? content = null) {
+			LOGGER.Info("Notification : {} : {}", title, content);
 			this.NotificationIcon.ShowNotification(title, content);
 		}
 
 		protected override void OnStartup(StartupEventArgs e) {
 			base.OnStartup(e);
+			LOGGER.Info("StartUP");
 
 			INSTANCE = this;
 			if (File.Exists(CONFIGURATION_PATH)) {
+				LOGGER.Info("Load Configuration.");
 				Configuration? configuration = JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(CONFIGURATION_PATH));
 				this.VRChatApi = configuration == null ? new VRChatAPI() : new VRChatAPI(configuration);
 			} else {
@@ -43,29 +47,32 @@ namespace VRChatUserObserver {
 			}
 
 			this.NotificationIcon = new NotificationIcon();
-			this.XsNotifier = new XSNotifier();
 
 			this._mainWindowModel = new MainWindowModel();
 			this._mainWindowViewModel = new MainWindowViewModel(this._mainWindowModel);
+			
+			LOGGER.Info("Check Token.");
 			if (this.VRChatApi.AuthAPI.GetAuth() is { ok: true }) {
+				LOGGER.Info("Success!");
 				this._mainWindowModel.IsLoggedIn = true;
 				this._mainWindowModel.UserName = this.VRChatApi.AuthAPI.GetUser()?.displayName ?? "Offline";
+			} else {
+				LOGGER.Warn("Failure.");
 			}
-
-			this.MainWindow = new MainWindow(this._mainWindowViewModel);
-			this.MainWindow.Show();
-
-
+			
+			this.ShowMainWindow();
+			this.SendNotification("A", "B");
+			
 			this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 		}
 
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
+			LOGGER.Info("Shutdown.");
 			Configuration configuration = this.VRChatApi.GetConfiguration();
 			File.WriteAllText(CONFIGURATION_PATH, JsonConvert.SerializeObject(configuration), Encoding.UTF8);
 			this.VRChatApi.Dispose();
 			this.NotificationIcon.Dispose();
-			this.XsNotifier.Dispose();
 		}
 	}
 }
