@@ -61,7 +61,6 @@ namespace VRChatUserObserver {
 			}
 			
 			this.ShowMainWindow();
-			this.SendNotification("A", "B");
 			
 			this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 		}
