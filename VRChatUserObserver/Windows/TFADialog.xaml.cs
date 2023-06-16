@@ -2,7 +2,7 @@
 using raitichan.com.vrchat_api;
 using raitichan.com.vrchat_api.JsonObject;
 
-namespace VRChatUserObserver;
+namespace VRChatUserObserver.Windows;
 
 public partial class TFADialog : Window {
 	public TFADialog() {

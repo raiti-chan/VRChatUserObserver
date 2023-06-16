@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace VRChatUserObserver;
+namespace VRChatUserObserver.Windows;
 
 public partial class MainWindow : Window {
 	public MainWindow() {

@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using VRChatUserObserver.Commands;
 
-namespace VRChatUserObserver; 
+namespace VRChatUserObserver.Windows; 
 
 public sealed class MainWindowViewModel : INotifyPropertyChanged {
 	private readonly MainWindowModel _mainWindowModel;

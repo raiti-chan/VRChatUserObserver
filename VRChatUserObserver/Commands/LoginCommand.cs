@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using raitichan.com.vrchat_api;
 using raitichan.com.vrchat_api.JsonObject;
+using VRChatUserObserver.Windows;
 
 namespace VRChatUserObserver.Commands;
 

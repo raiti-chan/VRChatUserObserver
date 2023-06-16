@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 using raitichan.com.vrchat_api;
+using VRChatUserObserver.Windows;
 
 namespace VRChatUserObserver.Commands;
 

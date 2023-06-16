@@ -4,6 +4,7 @@ using System.Windows;
 using Newtonsoft.Json;
 using raitichan.com.vrchat_api;
 using raitichan.com.vrchat_api.JsonObject;
+using VRChatUserObserver.Windows;
 using XSNotifications;
 
 namespace VRChatUserObserver {

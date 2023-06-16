@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="NLog" Version="5.2.0" />
     <PackageReference Include="XSNotifications" Version="0.1.2" />
   </ItemGroup>
 

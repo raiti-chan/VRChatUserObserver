@@ -1,4 +1,4 @@
-﻿namespace VRChatUserObserver; 
+﻿namespace VRChatUserObserver.Windows; 
 
 public partial class LoginDialog {
 	public LoginDialog() {

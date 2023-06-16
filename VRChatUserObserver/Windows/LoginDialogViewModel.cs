@@ -3,9 +3,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using VRChatUserObserver.Commands;
 
-namespace VRChatUserObserver; 
+namespace VRChatUserObserver.Windows; 
 
-public class LoginDialogViewModel : INotifyPropertyChanged {
+public sealed class LoginDialogViewModel : INotifyPropertyChanged {
 	private readonly LoginDialogModel _loginDialogModel;
 
 	public string UserName {
@@ -41,7 +41,7 @@ public class LoginDialogViewModel : INotifyPropertyChanged {
 	
 	public event PropertyChangedEventHandler? PropertyChanged;
 
-	protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
+	private void OnPropertyChanged([CallerMemberName] string? propertyName = null) {
 		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 	}
 }

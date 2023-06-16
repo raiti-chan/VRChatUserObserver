@@ -1,4 +1,4 @@
-﻿namespace VRChatUserObserver; 
+﻿namespace VRChatUserObserver.Windows; 
 
 public class LoginDialogModel {
 	public string UserName { get; set; } = string.Empty;

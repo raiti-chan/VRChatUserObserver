@@ -1,16 +1,17 @@
-﻿<Window x:Class="VRChatUserObserver.LoginDialog"
+﻿<Window x:Class="VRChatUserObserver.Windows.LoginDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:VRChatUserObserver" d:DataContext="{d:DesignInstance Type=local:LoginDialogViewModel}"
+        xmlns:windows="clr-namespace:VRChatUserObserver.Windows"
+        d:DataContext="{d:DesignInstance Type=windows:LoginDialogViewModel}"
 		mc:Ignorable="d"
         Title="Login" 
 		Height="Auto" Width="400"
 		SizeToContent="Height"
 		ResizeMode="NoResize">
 	<Window.DataContext>
-		<local:LoginDialogViewModel/>
+		<windows:LoginDialogViewModel/>
 	</Window.DataContext>
 	<Grid>
 		<Grid.ColumnDefinitions>

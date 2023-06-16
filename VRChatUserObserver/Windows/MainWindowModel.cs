@@ -1,4 +1,4 @@
-﻿namespace VRChatUserObserver;
+﻿namespace VRChatUserObserver.Windows;
 
 public class MainWindowModel {
 	public string UserName { get; set; } = "Offline";
