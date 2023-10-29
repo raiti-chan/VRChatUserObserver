@@ -39,6 +39,13 @@ public class LoginCommand : ICommand {
 			return false;
 		}
 
+		if (userInfo.displayName == null) {
+			LOGGER.Info("Need two factor auth.");
+			TFADialog tfaDialog = new();
+			tfaDialog.ShowDialog();
+			if (tfaDialog.DialogResult == false) return false;
+		}
+
 		AuthResult? authResult = authApi.GetAuth();
 		if (authResult == null) {
 			LOGGER.Warn("Login failed.");
@@ -46,15 +53,11 @@ public class LoginCommand : ICommand {
 			return false;
 		}
 
-		if (authResult.ok) {
-			LOGGER.Info("Success.");
-			return true;
-		}
-		
-		LOGGER.Info("Need two factor auth.");
-		TFADialog tfaDialog = new();
-		tfaDialog.ShowDialog();
-		return tfaDialog.DialogResult ?? false;
+		if (!authResult.ok) return false;
+		LOGGER.Info("Success.");
+		App.INSTANCE.SaveConfiguration();
+		return true;
+
 	}
 
 	public event EventHandler? CanExecuteChanged {

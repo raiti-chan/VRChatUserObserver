@@ -77,6 +77,15 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged {
 		}
 	}
 
+	public int RunningId {
+		get => this._mainWindowModel.RunningId;
+		set {
+			if (this._mainWindowModel.RunningId == value) return;
+			this._mainWindowModel.RunningId = value;
+			this.OnPropertyChanged();
+		}
+	}
+
 	public bool CanChangeTarget => !this._mainWindowModel.IsRunning;
 
 	public ExitCommand ExitCommand { get; }

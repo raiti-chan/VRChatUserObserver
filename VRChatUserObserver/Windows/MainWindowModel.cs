@@ -9,4 +9,5 @@ public class MainWindowModel {
 
 	public bool IsLoggedIn { get; set; }
 	public bool IsRunning { get; set; }
+	public int RunningId { get; set; } = 0;
 }

@@ -46,21 +46,26 @@ public class StartCommand : ICommand {
 			return;
 		}
 
+		Properties.Settings.Default.target = this._viewModel.ObservingTargetId;
+		Properties.Settings.Default.Save();
+
 		this._viewModel.ObservingTargetName = userInfo.displayName ?? "NONE";
 		this._viewModel.CurrentState = userInfo.state == State.active ? "offline" : userInfo.state.ToString();
 		this._viewModel.CurrentLocation = userInfo.state == State.offline ? "offline" : App.INSTANCE.VRChatApi.WorldApi.GetWorld(userInfo.worldId ?? string.Empty)?.name ?? "private";
 		this._viewModel.IsRunning = true;
+		this._viewModel.RunningId++;
 		new Task(this.Run, (authResult.token, userInfo.state, userInfo.location)).Start();
 	}
 
 	private void Run(object? param) {
-		LOGGER.Info("Start Observing thread");
+		int runningId = this._viewModel.RunningId;
+		LOGGER.Info($"Start Observing thread ID:{runningId}");
 		if (param is not (string token, State currentState, string currentLocation)) {
 			this._viewModel.IsRunning = false;
 			return;
 		}
 
-		while (this._viewModel.IsRunning) {
+		while (this._viewModel.IsRunning && runningId == this._viewModel.RunningId) {
 			try {
 				LOGGER.Info("Check Auth.");
 				if (App.INSTANCE.VRChatApi.AuthAPI.GetAuth() is not { ok: true }) {
@@ -78,9 +83,11 @@ public class StartCommand : ICommand {
 				using XSNotifier xsNotifier = new();
 
 				LOGGER.Info("Start observing loop.");
-				while (this._viewModel.IsRunning) {
+				while (this._viewModel.IsRunning && runningId == this._viewModel.RunningId) {
 					WebSocketReceiveData? receiveData = webSocketApi.ReceiveMassage();
 					if (receiveData?.content == null) continue;
+					if (!this._viewModel.IsRunning) break;
+					if (runningId != this._viewModel.RunningId) break;
 
 					switch (receiveData.type) {
 						case "friend-online": {
@@ -192,7 +199,7 @@ public class StartCommand : ICommand {
 			}
 		}
 
-		LOGGER.Info("Stop Observing thread");
+		LOGGER.Info($"Stop Observing thread ID:{runningId}");
 	}
 
 	private static void Notification(XSNotifier xsNotifier, string title, string? content = null) {

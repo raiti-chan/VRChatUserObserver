@@ -48,7 +48,9 @@ namespace VRChatUserObserver {
 
 			this.NotificationIcon = new NotificationIcon();
 
-			this._mainWindowModel = new MainWindowModel();
+			this._mainWindowModel = new MainWindowModel {
+				ObservingTargetId = VRChatUserObserver.Properties.Settings.Default.target
+			};
 			this._mainWindowViewModel = new MainWindowViewModel(this._mainWindowModel);
 			
 			LOGGER.Info("Check Token.");
@@ -68,10 +70,15 @@ namespace VRChatUserObserver {
 		protected override void OnExit(ExitEventArgs e) {
 			base.OnExit(e);
 			LOGGER.Info("Shutdown.");
-			Configuration configuration = this.VRChatApi.GetConfiguration();
-			File.WriteAllText(CONFIGURATION_PATH, JsonConvert.SerializeObject(configuration), Encoding.UTF8);
+			this.SaveConfiguration();
 			this.VRChatApi.Dispose();
 			this.NotificationIcon.Dispose();
+		}
+
+		public void SaveConfiguration() {
+			LOGGER.Info("SaveConfiguration.");
+			Configuration configuration = this.VRChatApi.GetConfiguration();
+			File.WriteAllText(CONFIGURATION_PATH, JsonConvert.SerializeObject(configuration), Encoding.UTF8);
 		}
 	}
 }
